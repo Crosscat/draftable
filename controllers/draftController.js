@@ -4,7 +4,11 @@ var Card = require('../state/card');
 exports.createDraft = function(req, res) {
   var cubeJSON = req.body.cube;
   var cube = parseCubeJSON(cubeJSON);
-  var draftID = global.state.newDraft(cube);
+
+  var draftType = req.body.draftType;
+
+  var draftID = global.state.newDraft(draftType, cube);
+
   res.send(global.state.drafts[draftID]);
 };
 
@@ -18,7 +22,16 @@ var parseCubeJSON = function(cubeJSON) {
   return cube;
 }
 
+exports.joinDraft = function (req, res) {
+  var draftId = req.params.draftId;
+  global.state.drafts[draftId].drafters++;
+  
+  res.send({ "ID" : (global.state.drafts[draftId].drafters - 1) });
+};
+
 exports.startDraft = function (req, res) {
-  var id = req.params.draftId;
-  res.send('Started draft ' + id);
+  var draftId = req.params.draftId;
+  global.state.drafts[draftId].started = true;
+
+  res.send("Started draft " + draftId);
 };

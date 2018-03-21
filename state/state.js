@@ -4,9 +4,9 @@ var State = function() {
     this.drafts = [];
 }
 
-State.prototype.newDraft = function(cube) {
+State.prototype.newDraft = function(draftType, cube) {
     var draftId = this.drafts.length;
-    var draft = new Draft(draftId, cube);
+    var draft = new Draft(draftId, draftType, cube);
     this.drafts.push(draft);
     return draftId;
 }
