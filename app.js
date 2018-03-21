@@ -13,6 +13,20 @@ global.state = new State();
 
 var app = express();
 
+// Good idea, but not sure it's necessary, since everything should be in response to client actions
+// var longpoll = require("express-longpoll")(app);
+// longpoll.create("/poll");
+// app.listen(8080, function () {
+//   console.log("Listening on port 8080");
+// });
+
+// var val = 0;
+// longpoll.publish("/poll", val);
+
+// setInterval(function () {
+//   longpoll.publish("/poll", val++);
+// }, 5000);
+
 // view engine setup
 app.set('views', path.join(__dirname, 'views'));
 app.set('view engine', 'pug');

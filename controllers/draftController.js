@@ -6,8 +6,9 @@ exports.createDraft = function(req, res) {
   var cube = parseCubeJSON(cubeJSON);
 
   var draftType = req.body.draftType;
+  var cardsPerPlayer = req.body.cardsPerPlayer;
 
-  var draftID = global.state.newDraft(draftType, cube);
+  var draftID = global.state.newDraft(draftType, cardsPerPlayer, cube);
 
   res.send(global.state.drafts[draftID]);
 };
@@ -31,7 +32,7 @@ exports.joinDraft = function (req, res) {
 
 exports.startDraft = function (req, res) {
   var draftId = req.params.draftId;
-  global.state.drafts[draftId].started = true;
+  global.state.drafts[draftId].start();
 
-  res.send("Started draft " + draftId);
+  res.send(global.state.drafts[draftId]);
 };
