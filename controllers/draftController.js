@@ -1,5 +1,4 @@
 var State = require('../state/state');
-var Card = require('../state/card');
 
 exports.createDraft = function(req, res) {
   var cubeJSON = req.body.cube;
@@ -17,8 +16,7 @@ var parseCubeJSON = function(cubeJSON) {
   var cube = [];
   for (var key in cubeJSON) {
     var card = cubeJSON[key];
-    var cardObj = new Card(name = card.name, color = card.color, cost = card.cost, imageUrl = card.imageUrl);
-    cube.push(cardObj);
+    cube.push(card);
   }
   return cube;
 }
@@ -27,12 +25,39 @@ exports.joinDraft = function (req, res) {
   var draftId = req.params.draftId;
   global.state.drafts[draftId].drafters++;
   
-  res.send({ "ID" : (global.state.drafts[draftId].drafters - 1) });
+  res.send({ "ID" : (global.state.drafts[draftId].drafters - 1), "DraftType" : (global.state.drafts[draftId].draftType) });
 };
 
 exports.startDraft = function (req, res) {
   var draftId = req.params.draftId;
   global.state.drafts[draftId].start();
 
-  res.send(global.state.drafts[draftId]);
+  res.send("Starting draft!"); //global.state.drafts[draftId]);
+};
+
+exports.checkPile = function (req, res) {
+  var draftId = req.params.draftId;
+  var pileId = req.params.pileId;
+
+  res.send(global.state.drafts[draftId].piles[pileId]);
+};
+
+exports.takePile = function (req, res) {
+  var draftId = req.params.draftId;
+  var pileId = req.params.pileId;
+
+  res.send(global.state.drafts[draftId].pickPile(pileId));
+};
+
+exports.skipPile = function (req, res) {
+  var draftId = req.params.draftId;
+  var pileId = req.params.pileId;
+
+  global.state.drafts[draftId].skipPile(pileId);
+};
+
+exports.currentTurn = function (req, res) {
+  var draftId = req.params.draftId;
+
+  res.send(global.state.drafts[draftId].getCurrentTurn());
 };

@@ -9,4 +9,12 @@ router.post('/:draftId/join', controller.joinDraft);
 
 router.post('/:draftId/start', controller.startDraft);
 
+router.get('/:draftId/piles/:pileId', controller.checkPile);
+
+router.post('/:draftId/piles/:pileId/take', controller.takePile);
+
+router.post('/:draftId/piles/:pileId/skip', controller.skipPile);
+
+router.get('/:draftId/turn', controller.currentTurn);
+
 module.exports = router;

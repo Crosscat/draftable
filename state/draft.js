@@ -11,10 +11,11 @@ var Draft = function(draftId, draftType, cardsPerPlayer, cube) {
 }
 
 Draft.prototype.start = function() {
+    if (this.started) return;
     this.started = true;
-    randomizeDrafterOrder();
-    this.cube = initializeCube(this.cardsPerPlayer, this.drafters, this.cube);
-    initializePiles(this.cube);
+    this.randomizeDrafterOrder(this.drafters);
+    this.initializeCube(this.cardsPerPlayer, this.drafters, this.cube);
+    this.initializePiles(this.cube);
 }
 
 Draft.prototype.pickPile = function(pileIndex) {
@@ -23,25 +24,33 @@ Draft.prototype.pickPile = function(pileIndex) {
     }
     var pile = this.piles[pileIndex].slice();
     this.piles[pileIndex] = [];
+    this.nextTurn();
     return pile;
 }
 
-Draft.prototype.skipPile = function(pileIndex) {
-    addToPile(pileIndex);
+Draft.prototype.nextTurn = function () {
+    this.currentTurn ++;
+    if (this.currentTurn >= this.drafters) {
+        this.currentTurn = 0;
+    }
 }
 
-function randomizeDrafterOrder() {
-    for (var i = 0; i < drafters; i++) {
+Draft.prototype.skipPile = function(pileIndex) {
+    this.addToPile(pileIndex);
+}
+
+Draft.prototype.randomizeDrafterOrder = function() {
+    this.drafterOrder = [];
+    for (var i = 0; i < this.drafters; i++) {
         this.drafterOrder.push(i);
     }
     this.drafterOrder = shuffle(this.drafterOrder);
 }
 
-function initializeCube(cardsPerPlayer, drafters, cube) {
-    var totalCards = cardsPerPlayer * drafters;
-    var shuffledCube = shuffle(cube);
-    var cubeSubset = shuffledCube.slice(0, totalCards);
-    return cubeSubset;
+Draft.prototype.initializeCube = function() {
+    var totalCards = this.cardsPerPlayer * this.drafters;
+    this.cube = shuffle(this.cube);
+    this.cube = this.cube.slice(0, totalCards);
 }
 
 function shuffle(a) {
@@ -52,20 +61,24 @@ function shuffle(a) {
     return a;
 }
 
-function addToPile(pileIndex) {
+Draft.prototype.addToPile = function(pileIndex) {
     if (this.cube.length == 0) return;
     this.piles[pileIndex].push(this.cube.pop());
 }
 
-function initializePiles() {
+Draft.prototype.initializePiles = function() {
     switch (this.draftType.toLowerCase()){
         case "winston":
             this.piles = [[],[],[]];
-            addToPile(0);
-            addToPile(1);
-            addToPile(2);
+            this.addToPile(0);
+            this.addToPile(1);
+            this.addToPile(2);
             break;
     }
+}
+
+Draft.prototype.getCurrentTurn = function() {
+    return this.drafterOrder[this.currentTurn];
 }
 
 module.exports = Draft;
