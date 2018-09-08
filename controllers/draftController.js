@@ -39,7 +39,7 @@ exports.checkPile = function (req, res) {
   var draftId = req.params.draftId;
   var pileId = req.params.pileId;
 
-  res.send(global.state.drafts[draftId].piles[pileId]);
+  res.send(global.state.drafts[draftId].peekPile(pileId));
 };
 
 exports.takePile = function (req, res) {
@@ -54,10 +54,29 @@ exports.skipPile = function (req, res) {
   var pileId = req.params.pileId;
 
   global.state.drafts[draftId].skipPile(pileId);
+  res.send("Skipped");
 };
 
 exports.currentTurn = function (req, res) {
   var draftId = req.params.draftId;
 
-  res.send(global.state.drafts[draftId].getCurrentTurn());
+  res.send({ "TurnID" : global.state.drafts[draftId].getCurrentTurn() });
 };
+
+exports.checkStarted = function (req, res) {
+  var draftId = req.params.draftId;
+
+  res.send({ "Started" : global.state.drafts[draftId].started });
+};
+
+exports.getStatus = function (req, res) {
+  var draftId = req.params.draftId;
+
+  res.send({ "PileSizes" : global.state.drafts[draftId].getPileSizes() });
+};
+
+exports.getCube = function (req, res) {
+  var draftId = req.params.draftId;
+
+  res.send(global.state.drafts[draftId].selection);
+}

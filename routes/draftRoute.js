@@ -17,4 +17,10 @@ router.post('/:draftId/piles/:pileId/skip', controller.skipPile);
 
 router.get('/:draftId/turn', controller.currentTurn);
 
+router.get('/:draftId/started', controller.checkStarted);
+
+router.get('/:draftId/status', controller.getStatus);
+
+router.get('/:draftId/cube', controller.getCube);
+
 module.exports = router;

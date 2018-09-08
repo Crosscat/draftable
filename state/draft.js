@@ -8,6 +8,7 @@ var Draft = function(draftId, draftType, cardsPerPlayer, cube) {
     this.drafterOrder = [];
     this.started = false;
     this.piles = [[]];
+    this.selection = cube;
 }
 
 Draft.prototype.start = function() {
@@ -19,13 +20,31 @@ Draft.prototype.start = function() {
 }
 
 Draft.prototype.pickPile = function(pileIndex) {
+    var pile;
     if (pileIndex > this.piles.length - 1) {
-        return [ this.cube.pop() ];
+        if (this.cube.length > 0){
+            pile = [ this.cube.pop() ];
+        }else{
+            pile = [];
+        }
+    }else{
+        pile = this.piles[pileIndex].slice();
+        this.piles[pileIndex] = [];
+        this.addToPile(pileIndex);
     }
-    var pile = this.piles[pileIndex].slice();
-    this.piles[pileIndex] = [];
     this.nextTurn();
     return pile;
+}
+
+Draft.prototype.peekPile = function (pileIndex) {
+    if (pileIndex > this.piles.length - 1) {
+        if (this.cube.length > 0){
+            return [ this.cube[this.cube.length - 1] ];
+        }else{
+            return [];
+        }
+    }
+    return this.piles[pileIndex];
 }
 
 Draft.prototype.nextTurn = function () {
@@ -51,6 +70,7 @@ Draft.prototype.initializeCube = function() {
     var totalCards = this.cardsPerPlayer * this.drafters;
     this.cube = shuffle(this.cube);
     this.cube = this.cube.slice(0, totalCards);
+    this.selection = this.cube.slice();
 }
 
 function shuffle(a) {
@@ -78,7 +98,19 @@ Draft.prototype.initializePiles = function() {
 }
 
 Draft.prototype.getCurrentTurn = function() {
+    if (!this.started){
+        return -1;
+    }
     return this.drafterOrder[this.currentTurn];
+}
+
+Draft.prototype.getPileSizes = function() {
+    var pileSizes = [];
+    for (var i = 0; i < this.piles.length; i++){
+        pileSizes.push(this.piles[i].length);
+    }
+    pileSizes.push(this.cube.length);
+    return pileSizes;
 }
 
 module.exports = Draft;
