@@ -5,6 +5,8 @@ var Draft = function(draftId, draftType, cardsPerPlayer, cube) {
     this.cube = cube;
     this.drafters = 0;
     this.currentTurn = 0;
+    this.currentDirection = 1;
+    this.looped = false;
     this.drafterOrder = [];
     this.started = false;
     this.piles = [[]];
@@ -20,19 +22,60 @@ Draft.prototype.start = function() {
 }
 
 Draft.prototype.pickPile = function(pileIndex) {
+    pileIndex = Number(pileIndex);
     var pile;
-    if (pileIndex > this.piles.length - 1) {
-        if (this.cube.length > 0){
-            pile = [ this.cube.pop() ];
+
+    if (this.draftType.toLowerCase() == "winston") {
+        if (pileIndex > this.piles.length - 1) {
+            if (this.cube.length > 0){
+                pile = [ this.cube.pop() ];
+            }else{
+                pile = [];
+            }
         }else{
-            pile = [];
+            pile = this.piles[pileIndex].slice();
+            this.piles[pileIndex] = [];
+            this.addToPile(pileIndex);
         }
-    }else{
-        pile = this.piles[pileIndex].slice();
-        this.piles[pileIndex] = [];
-        this.addToPile(pileIndex);
+        this.nextTurn();
     }
-    this.nextTurn();
+    
+    if (this.draftType.toLowerCase() == "grid") {
+        var pilesToPickIndeces = [];
+        pile = [];
+        
+        switch (pileIndex) {
+            case 0:
+                pilesToPickIndeces = [0, 1, 2];
+                break;
+            case 1:
+                pilesToPickIndeces = [3, 4, 5];
+                break;
+            case 2:
+                pilesToPickIndeces = [6, 7, 8];
+                break;
+            case 3:
+                pilesToPickIndeces = [0, 3, 6];
+                break;
+            case 4:
+                pilesToPickIndeces = [1, 4, 7];
+                break;
+            case 5:
+                pilesToPickIndeces = [2, 5, 8];
+                break;
+        }
+        
+        for (var i = 0; i < 3; i++) {
+            pile.push(this.piles[pilesToPickIndeces[i]].pop());
+        }
+        this.nextTurn();
+        if (this.looped) {
+            this.initializePiles();
+            this.nextTurn();
+            this.currentDirection *= -1;
+        }
+    }
+
     return pile;
 }
 
@@ -48,10 +91,21 @@ Draft.prototype.peekPile = function (pileIndex) {
 }
 
 Draft.prototype.nextTurn = function () {
-    this.currentTurn ++;
-    if (this.currentTurn >= this.drafters) {
-        this.currentTurn = 0;
+    this.currentTurn += this.currentDirection;
+    if (this.currentDirection == 1) {
+        if (this.currentTurn >= this.drafters) {
+            this.currentTurn = 0;
+            this.looped = true;
+            return;
+        }
+    } else {
+        if (this.currentTurn < 0) {
+            this.currentTurn = this.drafters - 1;
+            this.looped = true;
+            return;
+        }
     }
+    this.looped = false;
 }
 
 Draft.prototype.skipPile = function(pileIndex) {
@@ -93,6 +147,18 @@ Draft.prototype.initializePiles = function() {
             this.addToPile(0);
             this.addToPile(1);
             this.addToPile(2);
+            break;
+        case "grid":
+            this.piles = [[],[],[],[],[],[],[],[],[]];
+            this.addToPile(0);
+            this.addToPile(1);
+            this.addToPile(2);
+            this.addToPile(3);
+            this.addToPile(4);
+            this.addToPile(5);
+            this.addToPile(6);
+            this.addToPile(7);
+            this.addToPile(8);
             break;
     }
 }
